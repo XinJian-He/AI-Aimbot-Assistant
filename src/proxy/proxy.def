@@ -1,0 +1,3 @@
+EXPORTS
+    bsdiff   @1
+    bspatchW @2
