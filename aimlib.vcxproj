@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{7A9F2E44-91C3-4B6D-9E7A-3F1C08B2D5E6}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+
+  <!-- ── 依赖路径（项目自包含，所有依赖在 deps/ 下）────────── -->
+  <PropertyGroup>
+    <OpenCVDir>$(MSBuildProjectDirectory)\deps\opencv</OpenCVDir>
+    <ORTDir>$(MSBuildProjectDirectory)\deps\onnxruntime-dml</ORTDir>
+    <AimObfuscationSeed Condition="'$(AimObfuscationSeed)' == ''">$([System.Guid]::NewGuid().ToString('N').Substring(0, 16))</AimObfuscationSeed>
+  </PropertyGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <!-- /FI searches like #include: use one absolute path for generation and compilation. -->
+    <AimBuildSeedHeader>$([MSBuild]::NormalizePath('$(MSBuildProjectDirectory)', '$(IntDir)', 'obf_build_seed.h'))</AimBuildSeedHeader>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+  </PropertyGroup>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       Release x64 配置
+       ═══════════════════════════════════════════════════════════════ -->
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>false</ConformanceMode>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <Optimization>MaxSpeed</Optimization>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <ForcedIncludeFiles>$(AimBuildSeedHeader);%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalOptions>/utf-8 /Zc:char8_t- /bigobj %(AdditionalOptions)</AdditionalOptions>
+      <PreprocessorDefinitions>NDEBUG;NOMINMAX;_CRT_SECURE_NO_WARNINGS;AIMLIB_NO_DLLEXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>
+        $(OpenCVDir)\include;
+        $(ORTDir)\include;
+        $(MSBuildProjectDirectory)\include;
+        $(MSBuildProjectDirectory)\src;
+        $(MSBuildProjectDirectory)\src\aim;
+        $(MSBuildProjectDirectory)\src\capture;
+        $(MSBuildProjectDirectory)\src\detect;
+        $(MSBuildProjectDirectory)\src\control;
+        $(MSBuildProjectDirectory)\src\embed;
+        $(MSBuildProjectDirectory)\src\stealth;
+        $(MSBuildProjectDirectory)\src\proxy;
+        $(MSBuildProjectDirectory)\third_party\imgui;
+        $(MSBuildProjectDirectory)\third_party\imgui\backends;
+        %(AdditionalIncludeDirectories)
+      </AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <ModuleDefinitionFile>$(MSBuildProjectDirectory)\src\proxy\proxy.def</ModuleDefinitionFile>
+      <AdditionalLibraryDirectories>
+        $(OpenCVDir)\lib;
+        $(ORTDir)\lib;
+        %(AdditionalLibraryDirectories)
+      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>
+        opencv_world.lib;
+        d3d11.lib;
+        dxgi.lib;
+        onnxruntime.lib;
+        winhttp.lib;
+        winmm.lib;
+        dwmapi.lib;
+        ntdll.lib;
+        setupapi.lib;
+        bcrypt.lib;
+        ws2_32.lib;
+        user32.lib;
+        advapi32.lib;
+        wtsapi32.lib;
+        d3dcompiler.lib;dcomp.lib;imm32.lib;comdlg32.lib;windowscodecs.lib;ole32.lib;
+        %(AdditionalDependencies)
+      </AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       Debug x64 配置
+       ═══════════════════════════════════════════════════════════════ -->
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>false</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalOptions>/utf-8 /Zc:char8_t- /bigobj %(AdditionalOptions)</AdditionalOptions>
+      <PreprocessorDefinitions>_ITERATOR_DEBUG_LEVEL=0;NOMINMAX;_CRT_SECURE_NO_WARNINGS;AIMLIB_NO_DLLEXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>
+        $(OpenCVDir)\include;
+        $(ORTDir)\include;
+        $(MSBuildProjectDirectory)\include;
+        $(MSBuildProjectDirectory)\src;
+        $(MSBuildProjectDirectory)\src\aim;
+        $(MSBuildProjectDirectory)\src\capture;
+        $(MSBuildProjectDirectory)\src\detect;
+        $(MSBuildProjectDirectory)\src\control;
+        $(MSBuildProjectDirectory)\src\embed;
+        $(MSBuildProjectDirectory)\src\stealth;
+        $(MSBuildProjectDirectory)\src\proxy;
+        $(MSBuildProjectDirectory)\third_party\imgui;
+        $(MSBuildProjectDirectory)\third_party\imgui\backends;
+        %(AdditionalIncludeDirectories)
+      </AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ModuleDefinitionFile>$(MSBuildProjectDirectory)\src\proxy\proxy.def</ModuleDefinitionFile>
+      <AdditionalLibraryDirectories>
+        $(OpenCVDir)\lib;
+        $(ORTDir)\lib;
+        %(AdditionalLibraryDirectories)
+      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>
+        opencv_world.lib;
+        d3d11.lib;
+        dxgi.lib;
+        onnxruntime.lib;
+        winhttp.lib;
+        winmm.lib;
+        dwmapi.lib;
+        ntdll.lib;
+        setupapi.lib;
+        bcrypt.lib;
+        ws2_32.lib;
+        user32.lib;
+        advapi32.lib;
+        wtsapi32.lib;
+        d3dcompiler.lib;dcomp.lib;imm32.lib;comdlg32.lib;windowscodecs.lib;ole32.lib;
+        %(AdditionalDependencies)
+      </AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       源文件（无 main.cpp——DLL 无入口；Qt 界面已删除，
+       原生 ImGui 控制台由 src/ui 提供）
+       ═══════════════════════════════════════════════════════════════ -->
+  <ItemGroup>
+    <ClCompile Include="src\aim\aimapi.cpp" />
+    <ClCompile Include="src\aim\AimBackend.cpp" />
+    <ClCompile Include="src\aim\exports.cpp" />
+    <ClCompile Include="src\aim\integration.cpp" />
+    <ClCompile Include="src\aim\MemoryLoader.cpp" />
+    <!-- 屏幕捕获 -->
+    <ClCompile Include="src\capture\ScreenCapture.cpp" />
+    <ClCompile Include="src\capture\ObsCapture.cpp" />
+    <ClCompile Include="src\capture\StreamCapture.cpp" />
+    <ClCompile Include="src\capture\CardCapture.cpp" />
+    <ClCompile Include="src\capture\JpegCodec.cpp" />
+    <ClCompile Include="src\capture\FrameGrabber\Capture.cpp" />
+    <ClCompile Include="src\capture\FrameGrabber\Common.cpp" />
+    <ClCompile Include="src\capture\FrameGrabber\DShowCapture.cpp" />
+    <ClCompile Include="src\capture\FrameGrabber\FrameGrabber.cpp" />
+    <ClCompile Include="src\capture\DXScreenCapture.cpp" />
+    <ClCompile Include="src\capture\GDIScreenCapture.cpp" />
+    <ClCompile Include="src\capture\WGCScreenCapture.cpp" />
+    <!-- 目标检测 -->
+    <ClCompile Include="src\detect\Detector.cpp" />
+    <!-- 控制输出 -->
+    <ClCompile Include="src\control\kmboxNet.cpp" />
+    <ClCompile Include="src\control\makcu.cpp" />
+    <ClCompile Include="src\control\makcu12_adapter.cpp">
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+    <ClCompile Include="third_party\makcu-cpp\makcu-cpp\src\makcu.cpp">
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)third_party\makcu-cpp\makcu-cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ObjectFileName>$(IntDir)makcu_sdk_core.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="third_party\makcu-cpp\makcu-cpp\src\serialport.cpp">
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)third_party\makcu-cpp\makcu-cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ObjectFileName>$(IntDir)makcu_sdk_serial.obj</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="src\control\my_enc.cpp" />
+    <ClCompile Include="src\control\pid.cpp" />
+    <ClCompile Include="src\control\raw_input.cpp" />
+    <!-- 内嵌资源 -->
+    <ClCompile Include="src\embed\embedded_dujia.cpp" />
+    <ClCompile Include="src\embed\embedded_nn.cpp" />
+    <!-- 代理载荷: 4 个 COM 接口转发 + 载荷线程 + PEB unlink(伪装 SetupShell.dll) -->
+    <ClCompile Include="src\proxy\proxy.cpp" />
+    <ClCompile Include="src\proxy\bscommon_relay.cpp" />
+    <ClCompile Include="src\stealth\stealth.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\aim\aimapi.h" />
+    <ClInclude Include="src\aim\AimBackend.h" />
+    <ClInclude Include="include\aim\exports.h" />
+    <ClInclude Include="src\aim\integration.h" />
+    <ClInclude Include="src\aim\MemoryLoader.h" />
+    <ClInclude Include="src\capture\IScreenCapture.h" />
+    <ClInclude Include="src\capture\ScreenCapture.h" />
+    <ClInclude Include="src\capture\ObsCapture.h" />
+    <ClInclude Include="src\capture\StreamCapture.h" />
+    <ClInclude Include="src\capture\StreamProtocol.h" />
+    <ClInclude Include="src\capture\CardCapture.h" />
+    <ClInclude Include="src\capture\JpegCodec.h" />
+    <ClInclude Include="src\capture\FrameGrabber\Capture.h" />
+    <ClInclude Include="src\capture\FrameGrabber\Common.h" />
+    <ClInclude Include="src\capture\FrameGrabber\DShowCapture.h" />
+    <ClInclude Include="src\capture\FrameGrabber\DeviceIdentity.h" />
+    <ClInclude Include="src\capture\FrameGrabber\FrameGrabber.h" />
+    <ClInclude Include="src\capture\DXScreenCapture.h" />
+    <ClInclude Include="src\capture\GDIScreenCapture.h" />
+    <ClInclude Include="src\capture\WGCScreenCapture.h" />
+    <ClInclude Include="src\detect\all.h" />
+    <ClInclude Include="src\detect\findcolor.h" />
+    <ClInclude Include="src\detect\Detector.h" />
+    <ClInclude Include="src\detect\KalmanFilter.h" />
+    <ClInclude Include="src\detect\ModelClasses.h" />
+    <ClInclude Include="src\aim\TargetPriority.h" />
+    <ClInclude Include="src\control\HidTable.h" />
+    <ClInclude Include="src\control\kmboxNet.h" />
+    <ClInclude Include="src\control\makcu.h" />
+    <ClInclude Include="src\control\makcu_provider.h" />
+    <ClInclude Include="src\control\makcu2.h" />
+    <ClInclude Include="src\control\my_enc.h" />
+    <ClInclude Include="src\control\pid.h" />
+    <ClInclude Include="src\control\raw_input.h" />
+    <ClInclude Include="src\embed\embedded_dujia.h" />
+    <ClInclude Include="src\embed\embedded_dujia_data.h" />
+    <ClInclude Include="src\embed\embedded_nn.h" />
+    <ClInclude Include="src\embed\embedded_nn_data.h" />
+    <ClInclude Include="src\stealth\stealth.h" />
+    <ClInclude Include="src\common\build_seed.h" />
+    <ClInclude Include="src\common\obfuscated_text.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\proxy\proxy.def" />
+  </ItemGroup>
+
+  <!-- Native ImGui PNG assets are compiled into the DLL. -->
+  <ItemGroup>
+    <ORTDll Include="$(ORTDir)\lib\onnxruntime.dll" />
+    <ORTDll Include="$(ORTDir)\lib\DirectML.dll" />
+  </ItemGroup>
+  <Target Name="CopyDlls" AfterTargets="Build">
+    <Copy SourceFiles="@(ORTDll)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+    <Message Text="Copied runtime DLLs to $(OutDir)" Importance="High" />
+  </Target>
+
+  <ItemGroup>
+    <ClCompile Include="src\ui\app_ui.cpp" />
+    <ClCompile Include="src\ui\ui_backend.cpp" />
+    <ClCompile Include="src\ui\native_window.cpp" />
+    <ClCompile Include="third_party\imgui\imgui.cpp" />
+    <ClCompile Include="third_party\imgui\imgui_draw.cpp" />
+    <ClCompile Include="third_party\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="third_party\imgui\imgui_tables.cpp" />
+    <ClCompile Include="third_party\imgui\backends\imgui_impl_win32.cpp" />
+    <ClCompile Include="third_party\imgui\backends\imgui_impl_dx11.cpp" />
+    <ClInclude Include="src\ui\app_ui.h" />
+    <ClInclude Include="src\ui\ui_backend.h" />
+    <ClInclude Include="src\ui\resource_monitor.h" />
+    <ClInclude Include="src\aim\recent_log.h" />
+    <ClInclude Include="src\control\kmbox_button_state.h" />
+    <ClInclude Include="src\ui\native_json.h" />
+    <ClInclude Include="src\ui\image_texture.h" />
+    <ResourceCompile Include="src\ui\assets.rc"><AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\src\ui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories></ResourceCompile>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Target Name="GenerateObfuscationSeed" BeforeTargets="ClCompile" Condition="'$(Configuration)' == 'Release'">
+    <Error Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch('$(AimObfuscationSeed)', '^[0-9a-fA-F]{16}$'))" Text="AimObfuscationSeed must contain exactly 16 hexadecimal digits." />
+    <MakeDir Directories="$(IntDir)" />
+    <WriteLinesToFile File="$(AimBuildSeedHeader)" Lines="#define AIM_OBF_SEED 0x$(AimObfuscationSeed)ULL" Overwrite="true" WriteOnlyWhenDifferent="true" />
+  </Target>
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <!-- 内嵌模块数据头（src/embed/*_data.h）已随仓库提供。
+       仅当替换 embedded/ 下的 DLL 后才需要手动重新打包：
+       python scripts\pack_dujia.py embedded\封装dll_unpacked.dll src\embed\embedded_dujia_data.h
+       python scripts\pack_dujia.py embedded\NeuralCurveModule_unpacked.dll src\embed\embedded_nn_data.h kNnEnc 51F57A93
+  -->
+</Project>
